@@ -1,0 +1,9 @@
+{
+  "name": "The Emerald Pools — Campaign",
+  "short_name": "Emerald Pools",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1a1410",
+  "theme_color": "#1a1410",
+  "description": "Campaign companion for the Emerald Pools Warhammer Fantasy campaign"
+}

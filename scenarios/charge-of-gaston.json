@@ -1,0 +1,18 @@
+{
+  "scenarioName": "The Charge of Gaston le Furieux",
+  "tableW": 6,
+  "tableH": 4,
+  "pieces": [
+    { "category": "zone", "typeId": "zone-b", "x": 0, "y": 0, "w": 72, "h": 12, "label": "Bretonnia (12\")" },
+    { "category": "zone", "typeId": "zone-a", "x": 0, "y": 36, "w": 72, "h": 12, "label": "Nobleguts (12\")" },
+
+    { "category": "terrain", "typeId": "road", "x": 33, "y": 0, "w": 6, "h": 48, "label": "Road" },
+    { "category": "terrain", "typeId": "building", "x": 12, "y": 18, "w": 8, "h": 6, "label": "Wayside Shrine" },
+    { "category": "terrain", "typeId": "woods", "x": 3, "y": 6, "w": 10, "h": 8, "label": "Hedgerow" },
+    { "category": "terrain", "typeId": "woods", "x": 54, "y": 6, "w": 12, "h": 8, "label": "Hedgerow" },
+    { "category": "terrain", "typeId": "woods", "x": 54, "y": 30, "w": 10, "h": 8, "label": "Woods" },
+    { "category": "terrain", "typeId": "hill", "x": 42, "y": 18, "w": 10, "h": 8, "label": "Low Rise" },
+    { "category": "terrain", "typeId": "building", "x": 21, "y": 30, "w": 6, "h": 5, "label": "Farmstead" },
+    { "category": "terrain", "typeId": "objective", "x": 14, "y": 15, "w": 4, "h": 4, "label": "Peasants" }
+  ]
+}

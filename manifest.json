@@ -1,0 +1,54 @@
+{
+  "campaign": {
+    "name": "The Emerald Pools",
+    "reference": "Campaign Reference.md"
+  },
+  "factions": [
+    {
+      "id": "lizardmen",
+      "name": "Lizardmen — The Blessed of Huanchi",
+      "player": "Daniel",
+      "fullRules": "Lizardmen Items.md",
+      "wapReference": "WAP Reference/Lizardmen.md",
+      "tabs": [
+        { "id": "army", "label": "Army", "md": "factions/lizardmen/army.md" },
+        { "id": "kroq", "label": "Kroq'Debug", "md": "factions/lizardmen/kroq-debug.md" },
+        { "id": "skriipt", "label": "Skrr'ipt", "md": "factions/lizardmen/skriipt.md" },
+        { "id": "nullzotl", "label": "Null'Zotl", "md": "factions/lizardmen/nullzotl.md" },
+        { "id": "khlproc", "label": "Khl'Proc", "md": "factions/lizardmen/khlproc.md" },
+        { "id": "rules", "label": "Full Rules", "md": "Lizardmen Items.md" }
+      ]
+    },
+    {
+      "id": "nobleguts",
+      "name": "Ogre Kingdoms — The Nobleguts",
+      "player": "Jesper",
+      "fullRules": "Nobleguts.md",
+      "wapReference": "WAP Reference/Ogre Kingdoms.md",
+      "tabs": [
+        { "id": "army", "label": "Army", "md": "factions/nobleguts/army.md" },
+        { "id": "hercule", "label": "Hercule", "md": "factions/nobleguts/hercule.md" },
+        { "id": "pascal", "label": "Pascal", "md": "factions/nobleguts/pascal.md" },
+        { "id": "brogg", "label": "Brogg", "md": "factions/nobleguts/brogg.md" },
+        { "id": "rules", "label": "Full Rules", "md": "Nobleguts.md" }
+      ]
+    }
+  ],
+  "scenarios": [
+    { "id": "s01", "name": "Red Snail Basin Ambush", "md": "scenarios/01 - Red Snail Basin Ambush.md", "map": null, "status": "completed", "result": "Tomb Kings win" },
+    { "id": "s01b", "name": "Deffrivva Boyz Blockade", "md": "scenarios/01b - Deffrivva Boyz Blockade.md", "map": null, "status": "completed", "result": "Bretonnia wins" },
+    { "id": "s01c", "name": "Hunt for the Banner", "md": "scenarios/01c - Hunt for the Banner.md", "map": null, "status": "completed", "result": "Orcs win" },
+    { "id": "s02", "name": "Healing Moon Monastery", "md": "scenarios/02 - Healing Moon Monastery.md", "map": null, "status": "completed", "result": "Bretonnia wins" },
+    { "id": "s03", "name": "Broken Beach Landing", "md": "scenarios/03 - Broken Beach Landing.md", "map": null, "status": "completed", "result": "Bretonnia wins" },
+    { "id": "s04a", "name": "Healing Moon Convoy", "md": "scenarios/04a - Healing Moon Convoy.md", "map": null, "status": "completed", "result": "Lizardmen win" },
+    { "id": "s04b", "name": "Gnawtooth Depths Demolition", "md": "scenarios/04b - Gnawtooth Depths Demolition.md", "map": null, "status": "completed", "result": "Lizardmen win" },
+    { "id": "s05", "name": "Priest in Pieces", "md": "scenarios/05 - Priest in Pieces.md", "map": null, "status": "completed", "result": "Tomb Kings win" },
+    { "id": "s06", "name": "Charnel Valley Treachery", "md": "scenarios/06 - Charnel Valley Treachery.md", "map": null, "status": "completed", "result": "Stalemate" },
+    { "id": "s07", "name": "Ancient Winds of Shyish", "md": "scenarios/07 - Ancient Winds of Shyish.md", "map": null, "status": "completed", "result": "Lizardmen win" },
+    { "id": "s08", "name": "Desert Fever", "md": "scenarios/08 - Desert Fever.md", "map": null, "status": "completed", "result": "Bretonnia loses" },
+    { "id": "gaston", "name": "The Charge of Gaston le Furieux", "md": "scenarios/The Charge of Gaston le Furieux.md", "map": "scenarios/charge-of-gaston.json", "points": 1400, "status": "planned" },
+    { "id": "hill", "name": "King of the Hill", "md": "scenarios/King of the Hill.md", "map": "scenarios/king-of-the-hill.json", "points": 1600, "status": "planned" },
+    { "id": "chains", "name": "Dessert Chains", "md": "scenarios/Dessert Chains.md", "map": "scenarios/dessert-chains.json", "points": 1500, "status": "planned" },
+    { "id": "portal", "name": "Portal of Twisted Paths", "md": "scenarios/Portal of Twisted Paths.md", "map": "scenarios/portal-of-twisted-paths.json", "points": 1500, "status": "planned" }
+  ]
+}

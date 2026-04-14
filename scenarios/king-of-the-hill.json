@@ -1,0 +1,19 @@
+{
+  "scenarioName": "King of the Hill",
+  "tableW": 6,
+  "tableH": 4,
+  "pieces": [
+    { "category": "zone", "typeId": "zone-a", "x": 0, "y": 36, "w": 72, "h": 12, "label": "Lizardmen (12\")" },
+    { "category": "zone", "typeId": "zone-b", "x": 0, "y": 0, "w": 72, "h": 12, "label": "Stand-in (12\")" },
+
+    { "category": "terrain", "typeId": "hill", "x": 18, "y": 9, "w": 36, "h": 30, "label": "THE HILL" },
+    { "category": "terrain", "typeId": "objective", "x": 33, "y": 21, "w": 6, "h": 6, "label": "Hilltop" },
+
+    { "category": "terrain", "typeId": "woods", "x": 3, "y": 15, "w": 12, "h": 10, "label": "Dense Jungle" },
+    { "category": "terrain", "typeId": "woods", "x": 57, "y": 15, "w": 12, "h": 10, "label": "Dense Jungle" },
+    { "category": "terrain", "typeId": "woods", "x": 6, "y": 30, "w": 9, "h": 7, "label": "Undergrowth" },
+    { "category": "terrain", "typeId": "woods", "x": 57, "y": 30, "w": 9, "h": 7, "label": "Undergrowth" },
+    { "category": "terrain", "typeId": "marsh", "x": 48, "y": 27, "w": 8, "h": 6, "label": "Swamp" },
+    { "category": "terrain", "typeId": "ruins", "x": 18, "y": 6, "w": 6, "h": 5, "label": "Ruined Shrine" }
+  ]
+}

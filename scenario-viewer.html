@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Scenario Viewer</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;0,700;1,400&family=IM+Fell+English+SC&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #1a1410;
+    color: #d4c5a9;
+    font-family: 'Crimson Text', Georgia, serif;
+    font-size: 17px;
+    line-height: 1.65;
+    display: flex;
+    justify-content: center;
+    padding: 40px 20px;
+  }
+
+  #document {
+    max-width: 820px;
+    width: 100%;
+    background: linear-gradient(180deg, #2a2318 0%, #231e15 100%);
+    border: 1px solid #3d3225;
+    border-radius: 4px;
+    padding: 60px 64px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.03);
+    position: relative;
+  }
+
+  #document::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: url("data:image/svg+xml,%3Csvg width='200' height='200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    border-radius: 4px;
+  }
+
+  /* File picker */
+  #picker {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    z-index: 100;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  #picker button, #picker select {
+    font-family: 'Crimson Text', serif;
+    font-size: 14px;
+    background: #2a2318;
+    color: #d4c5a9;
+    border: 1px solid #3d3225;
+    padding: 6px 14px;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+  #picker button:hover { border-color: #8b7355; }
+
+  /* Print button */
+  #printBtn {
+    position: fixed;
+    top: 16px;
+    left: 16px;
+    z-index: 100;
+    font-family: 'Crimson Text', serif;
+    font-size: 14px;
+    background: #2a2318;
+    color: #d4c5a9;
+    border: 1px solid #3d3225;
+    padding: 6px 14px;
+    border-radius: 3px;
+    cursor: pointer;
+  }
+  #printBtn:hover { border-color: #8b7355; }
+
+  /* Typography */
+  h1 {
+    font-family: 'IM Fell English SC', serif;
+    font-size: 32px;
+    color: #c9a96e;
+    text-align: center;
+    margin-bottom: 8px;
+    letter-spacing: 1px;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.4);
+  }
+
+  h2 {
+    font-family: 'IM Fell English SC', serif;
+    font-size: 22px;
+    color: #b89a5a;
+    margin-top: 36px;
+    margin-bottom: 12px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #3d3225;
+    letter-spacing: 0.5px;
+  }
+
+  h3 {
+    font-size: 18px;
+    font-weight: 700;
+    color: #c4b08a;
+    margin-top: 28px;
+    margin-bottom: 8px;
+  }
+
+  h4 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #b8a478;
+    margin-top: 20px;
+    margin-bottom: 6px;
+    font-style: italic;
+  }
+
+  p { margin-bottom: 12px; }
+
+  em { color: #b8a070; }
+
+  strong { color: #d4ba82; font-weight: 700; }
+
+  a { color: #8b7355; text-decoration: underline; }
+
+  /* Horizontal rules — ornamental */
+  hr {
+    border: none;
+    height: 1px;
+    background: linear-gradient(90deg, transparent 0%, #5a4a32 30%, #8b7355 50%, #5a4a32 70%, transparent 100%);
+    margin: 32px 0;
+  }
+
+  /* Blockquotes — flavour text callouts */
+  blockquote {
+    border-left: 3px solid #5a4a32;
+    margin: 20px 0;
+    padding: 12px 20px;
+    background: rgba(0,0,0,0.15);
+    border-radius: 0 4px 4px 0;
+    font-style: italic;
+    color: #b8a478;
+  }
+  blockquote p { margin-bottom: 4px; }
+  blockquote p:last-child { margin-bottom: 0; }
+
+  /* Lists */
+  ul, ol { margin: 8px 0 12px 24px; }
+  li { margin-bottom: 4px; }
+  li > ul, li > ol { margin-top: 4px; margin-bottom: 4px; }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 15px;
+  }
+  thead {
+    background: rgba(139,115,85,0.15);
+  }
+  th {
+    font-family: 'IM Fell English SC', serif;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #b89a5a;
+    text-align: left;
+    padding: 8px 10px;
+    border-bottom: 2px solid #3d3225;
+  }
+  td {
+    padding: 6px 10px;
+    border-bottom: 1px solid #2a2318;
+    vertical-align: top;
+  }
+  tr:hover td { background: rgba(139,115,85,0.06); }
+
+  /* Stat block tables — detected by having M/WS/BS headers */
+  table.stat-block th { text-align: center; padding: 6px 4px; }
+  table.stat-block td { text-align: center; padding: 4px; font-size: 14px; }
+  table.stat-block td:first-child { text-align: left; font-weight: 600; color: #c4b08a; }
+
+  /* Code (for scenario notes, file references) */
+  code {
+    font-family: Consolas, monospace;
+    font-size: 14px;
+    background: rgba(0,0,0,0.2);
+    padding: 1px 5px;
+    border-radius: 2px;
+    color: #b8a478;
+  }
+
+  /* Italic intro text (the flavour paragraphs) */
+  #document > .content > p:first-child em {
+    display: block;
+    text-align: center;
+    font-size: 16px;
+    color: #a0906a;
+    margin-bottom: 20px;
+    line-height: 1.7;
+  }
+
+  /* Hidden/Daniel-only callouts */
+  .callout-hidden {
+    border: 1px dashed #6b3030;
+    background: rgba(107,48,48,0.1);
+    padding: 12px 16px;
+    border-radius: 4px;
+    margin: 16px 0;
+  }
+  .callout-hidden::before {
+    content: 'DANIEL ONLY';
+    display: block;
+    font-family: 'IM Fell English SC', serif;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #943030;
+    margin-bottom: 6px;
+  }
+
+  /* Campaign addition callouts */
+  .callout-addition {
+    border: 1px dashed #5a6b32;
+    background: rgba(90,107,50,0.08);
+    padding: 12px 16px;
+    border-radius: 4px;
+    margin: 16px 0;
+  }
+  .callout-addition::before {
+    content: 'CAMPAIGN ADDITION';
+    display: block;
+    font-family: 'IM Fell English SC', serif;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #7a8b40;
+    margin-bottom: 6px;
+  }
+
+  /* Embedded map */
+  .map-container {
+    margin: 24px 0;
+    text-align: center;
+  }
+  .map-container canvas {
+    border: 1px solid #3d3225;
+    border-radius: 4px;
+    max-width: 100%;
+    height: auto;
+  }
+  .map-label {
+    font-family: 'IM Fell English SC', serif;
+    font-size: 12px;
+    color: #8b7355;
+    margin-top: 6px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  /* Print styles */
+  @media print {
+    body { background: white; color: #1a1410; padding: 0; }
+    #document {
+      background: white; border: none; box-shadow: none;
+      padding: 40px; max-width: none;
+    }
+    #document::before { display: none; }
+    #picker, #printBtn { display: none; }
+    h1 { color: #2a1a0a; text-shadow: none; }
+    h2 { color: #3a2a1a; border-bottom-color: #ccc; }
+    h3, h4 { color: #4a3a2a; }
+    strong { color: #2a1a0a; }
+    em { color: #5a4a3a; }
+    blockquote { border-left-color: #aaa; background: #f5f0e8; color: #4a3a2a; }
+    hr { background: linear-gradient(90deg, transparent 0%, #aaa 30%, #888 50%, #aaa 70%, transparent 100%); }
+    table { font-size: 13px; }
+    thead { background: #f0e8d8; }
+    th { color: #3a2a1a; border-bottom-color: #aaa; }
+    td { border-bottom-color: #ddd; }
+    tr:hover td { background: transparent; }
+    .callout-hidden { border-color: #c88; background: #fef0f0; }
+    .callout-hidden::before { color: #a44; }
+    .callout-addition { border-color: #8a8; background: #f0fef0; }
+    .callout-addition::before { color: #4a4; }
+    code { background: #eee; color: #333; }
+  }
+</style>
+</head>
+<body>
+
+<button id="printBtn" onclick="window.print()">Print / PDF</button>
+
+<div id="picker">
+  <button onclick="document.getElementById('fileInput').click()">Load Scenario</button>
+  <button onclick="document.getElementById('mapInput').click()">Load Map</button>
+  <input type="file" id="fileInput" accept=".md" style="display:none">
+  <input type="file" id="mapInput" accept=".json" style="display:none">
+</div>
+
+<div id="document">
+  <div class="content" id="content">
+    <h1>Scenario Viewer</h1>
+    <hr>
+    <p>Click <strong>Load Scenario</strong> to open a scenario markdown file, or drag and drop a <code>.md</code> file onto this page.</p>
+    <p>The viewer renders the markdown with campaign-appropriate styling. Use <strong>Print / PDF</strong> to export a clean document for Google Drive.</p>
+    <h3>Features</h3>
+    <ul>
+      <li>Tables are automatically styled — stat blocks detected and centred</li>
+      <li>Italic opening paragraphs render as centred flavour text</li>
+      <li>Blockquotes render as parchment callouts</li>
+      <li>Print mode switches to a clean light theme</li>
+    </ul>
+  </div>
+</div>
+
+<script>
+// Minimal markdown parser — handles the subset we use in scenario files
+function parseMd(md) {
+  let html = '';
+  const lines = md.split('\n');
+  let inTable = false;
+  let tableRows = [];
+  let inList = false;
+  let listType = 'ul';
+  let inBlockquote = false;
+  let bqLines = [];
+
+  function flushTable() {
+    if (!tableRows.length) return '';
+    const isStatBlock = tableRows[0].some(c =>
+      /^\s*(M|WS|BS|S|T|W|I|A|Ld|Points|Profile)\s*$/i.test(c)
+    );
+    let cls = isStatBlock ? ' class="stat-block"' : '';
+    let h = `<table${cls}><thead><tr>`;
+    tableRows[0].forEach(c => h += `<th>${inline(c.trim())}</th>`);
+    h += '</tr></thead><tbody>';
+    for (let i = 2; i < tableRows.length; i++) { // skip separator row
+      if (tableRows[i].every(c => /^[\s\-:]+$/.test(c))) continue;
+      h += '<tr>';
+      tableRows[i].forEach(c => h += `<td>${inline(c.trim())}</td>`);
+      h += '</tr>';
+    }
+    h += '</tbody></table>';
+    tableRows = [];
+    return h;
+  }
+
+  function flushList() {
+    if (!inList) return '';
+    inList = false;
+    return `</${listType}>`;
+  }
+
+  function flushBq() {
+    if (!inBlockquote) return '';
+    inBlockquote = false;
+    let inner = bqLines.join('\n');
+    bqLines = [];
+    return `<blockquote>${parseMd(inner)}</blockquote>`;
+  }
+
+  function inline(text) {
+    // Bold + italic
+    text = text.replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>');
+    // Bold
+    text = text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    // Italic
+    text = text.replace(/\*(.+?)\*/g, '<em>$1</em>');
+    // Code
+    text = text.replace(/`(.+?)`/g, '<code>$1</code>');
+    // Links
+    text = text.replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2">$1</a>');
+    return text;
+  }
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const trimmed = line.trim();
+
+    // Blockquote
+    if (trimmed.startsWith('> ')) {
+      if (!inBlockquote) {
+        html += flushTable() + flushList();
+        inBlockquote = true;
+        bqLines = [];
+      }
+      bqLines.push(trimmed.slice(2));
+      continue;
+    } else if (inBlockquote && trimmed === '') {
+      bqLines.push('');
+      continue;
+    } else if (inBlockquote) {
+      html += flushBq();
+    }
+
+    // Table
+    if (trimmed.startsWith('|') && trimmed.endsWith('|')) {
+      if (!inTable) { html += flushList(); inTable = true; tableRows = []; }
+      const cells = trimmed.split('|').slice(1, -1);
+      tableRows.push(cells);
+      continue;
+    } else if (inTable) {
+      html += flushTable();
+      inTable = false;
+    }
+
+    // Headers
+    if (trimmed.startsWith('# ') && !trimmed.startsWith('## ')) {
+      html += flushList();
+      html += `<h1>${inline(trimmed.slice(2))}</h1>`;
+      continue;
+    }
+    if (trimmed.startsWith('## ') && !trimmed.startsWith('### ')) {
+      html += flushList();
+      html += `<h2>${inline(trimmed.slice(3))}</h2>`;
+      continue;
+    }
+    if (trimmed.startsWith('### ') && !trimmed.startsWith('#### ')) {
+      html += flushList();
+      html += `<h3>${inline(trimmed.slice(4))}</h3>`;
+      continue;
+    }
+    if (trimmed.startsWith('#### ')) {
+      html += flushList();
+      html += `<h4>${inline(trimmed.slice(5))}</h4>`;
+      continue;
+    }
+
+    // Horizontal rule
+    if (/^-{3,}$/.test(trimmed) || /^\*{3,}$/.test(trimmed)) {
+      html += flushList();
+      html += '<hr>';
+      continue;
+    }
+
+    // Unordered list
+    if (/^[-*]\s/.test(trimmed)) {
+      if (!inList) { inList = true; listType = 'ul'; html += '<ul>'; }
+      html += `<li>${inline(trimmed.slice(2))}</li>`;
+      continue;
+    }
+
+    // Ordered list
+    if (/^\d+\.\s/.test(trimmed)) {
+      if (!inList) { inList = true; listType = 'ol'; html += '<ol>'; }
+      html += `<li>${inline(trimmed.replace(/^\d+\.\s/, ''))}</li>`;
+      continue;
+    }
+
+    // Close list if we hit a non-list line
+    if (inList && trimmed !== '') {
+      html += flushList();
+    }
+
+    // Empty line
+    if (trimmed === '') {
+      if (inList) html += flushList();
+      continue;
+    }
+
+    // Paragraph
+    html += `<p>${inline(trimmed)}</p>`;
+  }
+
+  html += flushTable() + flushList() + flushBq();
+  return html;
+}
+
+function render(md) {
+  document.getElementById('content').innerHTML = parseMd(md);
+  // Update page title from first h1
+  const h1 = document.querySelector('#content h1');
+  if (h1) document.title = h1.textContent + ' — Scenario';
+}
+
+// File input
+document.getElementById('fileInput').addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  file.text().then(render);
+});
+
+// Map input
+document.getElementById('mapInput').addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  file.text().then(json => renderMap(JSON.parse(json)));
+});
+
+// Drag and drop — supports both .md and .json
+document.addEventListener('dragover', e => e.preventDefault());
+document.addEventListener('drop', e => {
+  e.preventDefault();
+  const file = e.dataTransfer.files[0];
+  if (!file) return;
+  if (file.name.endsWith('.md')) file.text().then(render);
+  if (file.name.endsWith('.json')) file.text().then(json => renderMap(JSON.parse(json)));
+});
+
+// === MAP RENDERER ===
+
+const MAP_SCALE = 10; // px per inch for embedded view (smaller than editor)
+
+const terrainTypes = [
+  { id: 'woods',     label: 'Woods',     color: '#2d6a2d', shape: 'ellipse' },
+  { id: 'hill',      label: 'Hill',      color: '#8B7355', shape: 'ellipse' },
+  { id: 'building',  label: 'Building',  color: '#777',    shape: 'rect' },
+  { id: 'ruins',     label: 'Ruins',     color: '#665',    shape: 'rect' },
+  { id: 'river',     label: 'River',     color: '#2255aa', shape: 'rect' },
+  { id: 'marsh',     label: 'Marsh',     color: '#3a6b5a', shape: 'ellipse' },
+  { id: 'road',      label: 'Road',      color: '#8a7a5a', shape: 'rect' },
+  { id: 'objective', label: 'Objective',  color: '#e94560', shape: 'circle' },
+  { id: 'portal',    label: 'Portal',    color: '#9944cc', shape: 'circle' },
+  { id: 'wall',      label: 'Wall',      color: '#999',    shape: 'rect' },
+  { id: 'pyre',      label: 'Pyre',      color: '#cc6600', shape: 'circle' },
+];
+
+const zoneTypes = [
+  { id: 'zone-a', color: 'rgba(40,80,200,0.2)', border: '#2850c8' },
+  { id: 'zone-b', color: 'rgba(200,40,40,0.2)', border: '#c82828' },
+  { id: 'zone-neutral', color: 'rgba(200,200,40,0.15)', border: '#c8c828' },
+];
+
+function renderMap(data) {
+  const S = MAP_SCALE;
+  const wInches = (data.tableW || 6) * 12;
+  const hInches = (data.tableH || 4) * 12;
+  const cw = wInches * S;
+  const ch = hInches * S;
+
+  // Find or create map container — insert at ## Map heading or at end
+  let container = document.getElementById('map-embed');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'map-embed';
+    container.className = 'map-container';
+
+    // Try to insert after the Map heading
+    const headings = document.querySelectorAll('#content h2');
+    let mapH2 = null;
+    headings.forEach(h => { if (h.textContent.trim() === 'Map') mapH2 = h; });
+
+    if (mapH2) {
+      // Replace everything after the Map h2 with the canvas
+      let next = mapH2.nextElementSibling;
+      while (next) {
+        const toRemove = next;
+        next = next.nextElementSibling;
+        toRemove.remove();
+      }
+      mapH2.after(container);
+    } else {
+      document.getElementById('content').appendChild(container);
+    }
+  }
+
+  container.innerHTML = '';
+  const canvas = document.createElement('canvas');
+  canvas.width = cw;
+  canvas.height = ch;
+  container.appendChild(canvas);
+
+  if (data.scenarioName) {
+    const label = document.createElement('div');
+    label.className = 'map-label';
+    label.textContent = 'Battlefield Map';
+    container.appendChild(label);
+  }
+
+  const ctx = canvas.getContext('2d');
+
+  // Background
+  ctx.fillStyle = '#2a2a3a';
+  ctx.fillRect(0, 0, cw, ch);
+
+  // Grid (6")
+  ctx.strokeStyle = '#333'; ctx.lineWidth = 0.5;
+  for (let x = 0; x <= wInches; x += 6) {
+    ctx.beginPath(); ctx.moveTo(x*S, 0); ctx.lineTo(x*S, ch); ctx.stroke();
+  }
+  for (let y = 0; y <= hInches; y += 6) {
+    ctx.beginPath(); ctx.moveTo(0, y*S); ctx.lineTo(cw, y*S); ctx.stroke();
+  }
+  // 12" grid
+  ctx.strokeStyle = '#444'; ctx.lineWidth = 1;
+  for (let x = 0; x <= wInches; x += 12) {
+    ctx.beginPath(); ctx.moveTo(x*S, 0); ctx.lineTo(x*S, ch); ctx.stroke();
+  }
+  for (let y = 0; y <= hInches; y += 12) {
+    ctx.beginPath(); ctx.moveTo(0, y*S); ctx.lineTo(cw, y*S); ctx.stroke();
+  }
+  // Foot markers
+  ctx.fillStyle = '#555'; ctx.font = '9px sans-serif';
+  for (let f = 0; f <= wInches / 12; f++) ctx.fillText(f+"'", f*12*S+2, 10);
+  for (let f = 0; f <= hInches / 12; f++) ctx.fillText(f+"'", 2, f*12*S+10);
+
+  // Draw pieces
+  const pieces = data.pieces || [];
+  const zones = pieces.filter(p => p.category === 'zone');
+  const terrain = pieces.filter(p => p.category === 'terrain');
+  const labels = pieces.filter(p => p.category === 'label');
+
+  zones.forEach(p => drawMapPiece(ctx, p, S));
+  terrain.forEach(p => drawMapPiece(ctx, p, S));
+  labels.forEach(p => drawMapPiece(ctx, p, S));
+
+  // Scenario name on map
+  if (data.scenarioName) {
+    ctx.fillStyle = '#999'; ctx.font = 'bold 12px sans-serif';
+    ctx.fillText(data.scenarioName, 8, ch - 8);
+  }
+}
+
+function drawMapPiece(ctx, p, S) {
+  const px = p.x*S, py = p.y*S, pw = p.w*S, ph = p.h*S;
+
+  if (p.category === 'zone') {
+    const z = zoneTypes.find(z => z.id === p.typeId);
+    if (!z) return;
+    ctx.fillStyle = z.color;
+    ctx.fillRect(px, py, pw, ph);
+    ctx.strokeStyle = z.border; ctx.lineWidth = 1.5; ctx.setLineDash([4, 3]);
+    ctx.strokeRect(px, py, pw, ph);
+    ctx.setLineDash([]);
+    if (p.label) {
+      ctx.fillStyle = z.border; ctx.font = 'bold 10px sans-serif';
+      ctx.fillText(p.label, px+3, py+12);
+    }
+    return;
+  }
+
+  if (p.category === 'label') {
+    ctx.fillStyle = '#ccc'; ctx.font = '10px sans-serif';
+    // Wrap long labels
+    const maxW = 200;
+    const words = (p.label || '').split(' ');
+    let line = '', lineY = py + 10;
+    words.forEach(w => {
+      const test = line + w + ' ';
+      if (ctx.measureText(test).width > maxW && line) {
+        ctx.fillText(line.trim(), px, lineY);
+        line = w + ' '; lineY += 12;
+      } else { line = test; }
+    });
+    if (line) ctx.fillText(line.trim(), px, lineY);
+    return;
+  }
+
+  const t = terrainTypes.find(t => t.id === p.typeId);
+  if (!t) return;
+  ctx.fillStyle = t.color;
+  ctx.strokeStyle = '#000'; ctx.lineWidth = 1;
+
+  if (t.shape === 'ellipse') {
+    ctx.beginPath();
+    ctx.ellipse(px+pw/2, py+ph/2, pw/2, ph/2, 0, 0, Math.PI*2);
+    ctx.fill(); ctx.stroke();
+  } else if (t.shape === 'circle') {
+    const r = Math.min(pw, ph) / 2;
+    ctx.beginPath(); ctx.arc(px+pw/2, py+ph/2, r, 0, Math.PI*2);
+    ctx.fill(); ctx.stroke();
+  } else {
+    ctx.fillRect(px, py, pw, ph);
+    ctx.strokeRect(px, py, pw, ph);
+  }
+
+  const label = p.label || t.label;
+  ctx.fillStyle = '#fff'; ctx.font = '9px sans-serif';
+  const tw = ctx.measureText(label).width;
+  if (tw < pw - 4) {
+    ctx.fillText(label, px+pw/2-tw/2, py+ph/2+3);
+  } else {
+    // Smaller font for long labels
+    ctx.font = '7px sans-serif';
+    const tw2 = ctx.measureText(label).width;
+    ctx.fillText(label, px+pw/2-tw2/2, py+ph/2+2);
+  }
+}
+</script>
+</body>
+</html>

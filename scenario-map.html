@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Scenario Map Editor</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: Segoe UI, sans-serif; background: #1a1a2e; color: #e0e0e0; display: flex; height: 100vh; overflow: hidden; }
+
+  #sidebar {
+    width: 220px; background: #16213e; padding: 12px; display: flex; flex-direction: column; gap: 8px;
+    overflow-y: auto; border-right: 1px solid #333;
+  }
+  #sidebar h3 { font-size: 11px; text-transform: uppercase; color: #888; margin-top: 8px; }
+  #sidebar input[type=text] { background: #0f3460; border: 1px solid #444; color: #e0e0e0; padding: 4px 8px; font-size: 13px; border-radius: 3px; width: 100%; }
+  #sidebar label { font-size: 12px; display: flex; align-items: center; gap: 6px; }
+  #sidebar select, #sidebar input[type=number] { background: #0f3460; border: 1px solid #444; color: #e0e0e0; padding: 2px 4px; font-size: 12px; border-radius: 3px; }
+
+  .terrain-btn {
+    display: flex; align-items: center; gap: 8px; padding: 6px 8px; border: 2px solid transparent;
+    border-radius: 4px; cursor: pointer; font-size: 13px; background: #0f3460; transition: border-color 0.15s;
+  }
+  .terrain-btn:hover { border-color: #555; }
+  .terrain-btn.active { border-color: #e94560; }
+  .terrain-swatch { width: 20px; height: 20px; border-radius: 3px; border: 1px solid #555; }
+
+  .action-btn {
+    padding: 6px 10px; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;
+    background: #0f3460; color: #e0e0e0; transition: background 0.15s;
+  }
+  .action-btn:hover { background: #e94560; }
+  .action-btn.danger { background: #6b1030; }
+  .action-btn.danger:hover { background: #e94560; }
+
+  #canvas-wrap { flex: 1; display: flex; align-items: center; justify-content: center; padding: 16px; }
+  canvas { border: 1px solid #444; cursor: crosshair; background: #2a2a3a; }
+
+  #help { position: fixed; bottom: 8px; right: 12px; font-size: 11px; color: #666; }
+</style>
+</head>
+<body>
+
+<div id="sidebar">
+  <input type="text" id="scenarioName" placeholder="Scenario name..." value="">
+
+  <h3>Table Size</h3>
+  <label>Width (feet): <input type="number" id="tableW" value="6" min="2" max="10" style="width:50px"></label>
+  <label>Height (feet): <input type="number" id="tableH" value="4" min="2" max="8" style="width:50px"></label>
+  <button class="action-btn" onclick="resizeTable()">Resize</button>
+
+  <h3>Terrain</h3>
+  <div id="terrainPalette"></div>
+
+  <h3>Deployment Zones</h3>
+  <div id="zonePalette"></div>
+
+  <h3>Labels</h3>
+  <div class="terrain-btn" onclick="setTool('label')">
+    <div class="terrain-swatch" style="background:#fff; font-size:14px; text-align:center; line-height:20px; color:#000;">A</div>
+    <span>Text Label</span>
+  </div>
+
+  <h3>Size</h3>
+  <label>Piece width (inches): <input type="number" id="pieceW" value="6" min="1" max="24" style="width:50px"></label>
+  <label>Piece height (inches): <input type="number" id="pieceH" value="6" min="1" max="24" style="width:50px"></label>
+
+  <h3>Actions</h3>
+  <button class="action-btn" onclick="exportPNG()">Export PNG</button>
+  <button class="action-btn" onclick="saveJSON()">Save JSON</button>
+  <button class="action-btn" onclick="loadJSON()">Load JSON</button>
+  <button class="action-btn danger" onclick="clearAll()">Clear All</button>
+</div>
+
+<div id="canvas-wrap">
+  <canvas id="map"></canvas>
+</div>
+
+<div id="help">Click: place | Drag: move | Right-click: delete | Scroll: resize piece</div>
+
+<script>
+const SCALE = 14; // px per inch
+const terrainTypes = [
+  { id: 'woods',     label: 'Woods',     color: '#2d6a2d', shape: 'ellipse' },
+  { id: 'hill',      label: 'Hill',      color: '#8B7355', shape: 'ellipse' },
+  { id: 'building',  label: 'Building',  color: '#777',    shape: 'rect' },
+  { id: 'ruins',     label: 'Ruins',     color: '#665',    shape: 'rect' },
+  { id: 'river',     label: 'River',     color: '#2255aa', shape: 'rect' },
+  { id: 'marsh',     label: 'Marsh',     color: '#3a6b5a', shape: 'ellipse' },
+  { id: 'road',      label: 'Road',      color: '#8a7a5a', shape: 'rect' },
+  { id: 'objective',  label: 'Objective', color: '#e94560', shape: 'circle' },
+  { id: 'portal',    label: 'Portal',    color: '#9944cc', shape: 'circle' },
+  { id: 'wall',      label: 'Wall',      color: '#999',    shape: 'rect' },
+  { id: 'pyre',      label: 'Pyre',      color: '#cc6600', shape: 'circle' },
+];
+
+const zoneTypes = [
+  { id: 'zone-a', label: 'Zone A (Blue)', color: 'rgba(40,80,200,0.2)', border: '#2850c8' },
+  { id: 'zone-b', label: 'Zone B (Red)',  color: 'rgba(200,40,40,0.2)', border: '#c82828' },
+  { id: 'zone-neutral', label: 'Neutral Zone', color: 'rgba(200,200,40,0.15)', border: '#c8c828' },
+];
+
+let canvas, ctx;
+let tableWidthInches = 72, tableHeightInches = 48;
+let pieces = [];
+let tool = null; // {type:'terrain', terrainId} | {type:'zone', zoneId} | {type:'label'}
+let dragging = null;
+let dragOffset = { x: 0, y: 0 };
+
+function init() {
+  canvas = document.getElementById('map');
+  ctx = canvas.getContext('2d');
+  buildPalette();
+  resizeTable();
+  canvas.addEventListener('mousedown', onMouseDown);
+  canvas.addEventListener('mousemove', onMouseMove);
+  canvas.addEventListener('mouseup', onMouseUp);
+  canvas.addEventListener('contextmenu', onRightClick);
+  canvas.addEventListener('wheel', onWheel);
+}
+
+function buildPalette() {
+  const tp = document.getElementById('terrainPalette');
+  terrainTypes.forEach(t => {
+    const div = document.createElement('div');
+    div.className = 'terrain-btn';
+    div.dataset.id = t.id;
+    div.innerHTML = `<div class="terrain-swatch" style="background:${t.color}"></div><span>${t.label}</span>`;
+    div.onclick = () => setTool('terrain', t.id);
+    tp.appendChild(div);
+  });
+  const zp = document.getElementById('zonePalette');
+  zoneTypes.forEach(z => {
+    const div = document.createElement('div');
+    div.className = 'terrain-btn';
+    div.dataset.id = z.id;
+    div.innerHTML = `<div class="terrain-swatch" style="background:${z.border}"></div><span>${z.label}</span>`;
+    div.onclick = () => setTool('zone', z.id);
+    zp.appendChild(div);
+  });
+}
+
+function setTool(type, id) {
+  tool = id ? { type, id } : { type };
+  document.querySelectorAll('.terrain-btn').forEach(b => b.classList.remove('active'));
+  if (id) {
+    const el = document.querySelector(`.terrain-btn[data-id="${id}"]`);
+    if (el) el.classList.add('active');
+  }
+}
+
+function resizeTable() {
+  tableWidthInches = parseInt(document.getElementById('tableW').value) * 12;
+  tableHeightInches = parseInt(document.getElementById('tableH').value) * 12;
+  canvas.width = tableWidthInches * SCALE;
+  canvas.height = tableHeightInches * SCALE;
+  draw();
+}
+
+function draw() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // Grid (6" squares)
+  ctx.strokeStyle = '#333';
+  ctx.lineWidth = 0.5;
+  for (let x = 0; x <= tableWidthInches; x += 6) {
+    ctx.beginPath(); ctx.moveTo(x * SCALE, 0); ctx.lineTo(x * SCALE, canvas.height); ctx.stroke();
+  }
+  for (let y = 0; y <= tableHeightInches; y += 6) {
+    ctx.beginPath(); ctx.moveTo(0, y * SCALE); ctx.lineTo(canvas.width, y * SCALE); ctx.stroke();
+  }
+
+  // 12" markers (darker)
+  ctx.strokeStyle = '#444';
+  ctx.lineWidth = 1;
+  for (let x = 0; x <= tableWidthInches; x += 12) {
+    ctx.beginPath(); ctx.moveTo(x * SCALE, 0); ctx.lineTo(x * SCALE, canvas.height); ctx.stroke();
+  }
+  for (let y = 0; y <= tableHeightInches; y += 12) {
+    ctx.beginPath(); ctx.moveTo(0, y * SCALE); ctx.lineTo(canvas.width, y * SCALE); ctx.stroke();
+  }
+
+  // Foot markers on edges
+  ctx.fillStyle = '#555'; ctx.font = '10px sans-serif';
+  for (let f = 0; f <= tableWidthInches / 12; f++) {
+    ctx.fillText(f + "'", f * 12 * SCALE + 2, 12);
+  }
+  for (let f = 0; f <= tableHeightInches / 12; f++) {
+    ctx.fillText(f + "'", 2, f * 12 * SCALE + 12);
+  }
+
+  // Draw pieces (zones first, then terrain, then labels on top)
+  const zones = pieces.filter(p => p.category === 'zone');
+  const terrain = pieces.filter(p => p.category === 'terrain');
+  const labels = pieces.filter(p => p.category === 'label');
+
+  zones.forEach(drawPiece);
+  terrain.forEach(drawPiece);
+  labels.forEach(drawPiece);
+
+  // Scenario name
+  const name = document.getElementById('scenarioName').value;
+  if (name) {
+    ctx.fillStyle = '#ccc'; ctx.font = 'bold 16px sans-serif';
+    ctx.fillText(name, 10, canvas.height - 10);
+  }
+}
+
+function drawPiece(p) {
+  const px = p.x * SCALE, py = p.y * SCALE, pw = p.w * SCALE, ph = p.h * SCALE;
+
+  if (p.category === 'zone') {
+    const z = zoneTypes.find(z => z.id === p.typeId);
+    ctx.fillStyle = z.color;
+    ctx.fillRect(px, py, pw, ph);
+    ctx.strokeStyle = z.border; ctx.lineWidth = 2; ctx.setLineDash([6, 4]);
+    ctx.strokeRect(px, py, pw, ph);
+    ctx.setLineDash([]);
+    if (p.label) {
+      ctx.fillStyle = z.border; ctx.font = 'bold 13px sans-serif';
+      ctx.fillText(p.label, px + 4, py + 15);
+    }
+    return;
+  }
+
+  if (p.category === 'label') {
+    ctx.fillStyle = '#fff'; ctx.font = 'bold 13px sans-serif';
+    ctx.fillText(p.label || 'Label', px, py + 14);
+    return;
+  }
+
+  const t = terrainTypes.find(t => t.id === p.typeId);
+  ctx.fillStyle = t.color;
+  ctx.strokeStyle = '#000'; ctx.lineWidth = 1.5;
+
+  if (t.shape === 'ellipse') {
+    ctx.beginPath();
+    ctx.ellipse(px + pw / 2, py + ph / 2, pw / 2, ph / 2, 0, 0, Math.PI * 2);
+    ctx.fill(); ctx.stroke();
+  } else if (t.shape === 'circle') {
+    const r = Math.min(pw, ph) / 2;
+    ctx.beginPath();
+    ctx.arc(px + pw / 2, py + ph / 2, r, 0, Math.PI * 2);
+    ctx.fill(); ctx.stroke();
+  } else {
+    ctx.fillRect(px, py, pw, ph);
+    ctx.strokeRect(px, py, pw, ph);
+  }
+
+  // Label
+  ctx.fillStyle = '#fff'; ctx.font = '11px sans-serif';
+  const label = p.label || t.label;
+  const tw = ctx.measureText(label).width;
+  ctx.fillText(label, px + pw / 2 - tw / 2, py + ph / 2 + 4);
+}
+
+function hitTest(mx, my) {
+  // Reverse order — labels first, then terrain, then zones
+  for (let i = pieces.length - 1; i >= 0; i--) {
+    const p = pieces[i];
+    if (p.category === 'label') {
+      if (mx >= p.x && mx <= p.x + 8 && my >= p.y && my <= p.y + 2) return i;
+      continue;
+    }
+    if (mx >= p.x && mx <= p.x + p.w && my >= p.y && my <= p.y + p.h) return i;
+  }
+  return -1;
+}
+
+function snapTo(v, grid) { return Math.round(v / grid) * grid; }
+
+function onMouseDown(e) {
+  if (e.button !== 0) return;
+  const rect = canvas.getBoundingClientRect();
+  const mx = (e.clientX - rect.left) / SCALE;
+  const my = (e.clientY - rect.top) / SCALE;
+
+  // Try to grab existing piece
+  const idx = hitTest(mx, my);
+  if (idx >= 0 && !tool) {
+    dragging = idx;
+    dragOffset.x = mx - pieces[idx].x;
+    dragOffset.y = my - pieces[idx].y;
+    return;
+  }
+  if (idx >= 0 && tool) {
+    // If a tool is selected but clicking on existing piece, drag it instead
+    dragging = idx;
+    dragOffset.x = mx - pieces[idx].x;
+    dragOffset.y = my - pieces[idx].y;
+    return;
+  }
+
+  if (!tool) return;
+
+  const pw = parseInt(document.getElementById('pieceW').value) || 6;
+  const ph = parseInt(document.getElementById('pieceH').value) || 6;
+
+  if (tool.type === 'terrain') {
+    const sx = snapTo(mx - pw / 2, 3);
+    const sy = snapTo(my - ph / 2, 3);
+    pieces.push({ category: 'terrain', typeId: tool.id, x: sx, y: sy, w: pw, h: ph, label: '' });
+  } else if (tool.type === 'zone') {
+    const sx = snapTo(mx - pw / 2, 6);
+    const sy = snapTo(my - ph / 2, 6);
+    pieces.push({ category: 'zone', typeId: tool.id, x: sx, y: sy, w: pw, h: ph, label: '' });
+  } else if (tool.type === 'label') {
+    const text = prompt('Label text:');
+    if (text) pieces.push({ category: 'label', x: mx, y: my, w: 0, h: 0, label: text });
+  }
+  draw();
+}
+
+function onMouseMove(e) {
+  if (dragging === null) return;
+  const rect = canvas.getBoundingClientRect();
+  const mx = (e.clientX - rect.left) / SCALE;
+  const my = (e.clientY - rect.top) / SCALE;
+  const p = pieces[dragging];
+  p.x = snapTo(mx - dragOffset.x, 3);
+  p.y = snapTo(my - dragOffset.y, 3);
+  draw();
+}
+
+function onMouseUp() { dragging = null; }
+
+function onRightClick(e) {
+  e.preventDefault();
+  const rect = canvas.getBoundingClientRect();
+  const mx = (e.clientX - rect.left) / SCALE;
+  const my = (e.clientY - rect.top) / SCALE;
+  const idx = hitTest(mx, my);
+  if (idx >= 0) { pieces.splice(idx, 1); draw(); }
+}
+
+function onWheel(e) {
+  e.preventDefault();
+  const rect = canvas.getBoundingClientRect();
+  const mx = (e.clientX - rect.left) / SCALE;
+  const my = (e.clientY - rect.top) / SCALE;
+  const idx = hitTest(mx, my);
+  if (idx >= 0) {
+    const p = pieces[idx];
+    const delta = e.deltaY > 0 ? -1 : 1;
+    p.w = Math.max(2, p.w + delta);
+    p.h = Math.max(2, p.h + delta);
+    draw();
+  }
+}
+
+function exportPNG() {
+  // Deselect tool for clean export
+  draw();
+  const link = document.createElement('a');
+  const name = document.getElementById('scenarioName').value || 'scenario-map';
+  link.download = name.replace(/\s+/g, '-').toLowerCase() + '.png';
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+}
+
+function saveJSON() {
+  const data = {
+    scenarioName: document.getElementById('scenarioName').value,
+    tableW: parseInt(document.getElementById('tableW').value),
+    tableH: parseInt(document.getElementById('tableH').value),
+    pieces
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const link = document.createElement('a');
+  const name = document.getElementById('scenarioName').value || 'scenario-map';
+  link.download = name.replace(/\s+/g, '-').toLowerCase() + '.json';
+  link.href = URL.createObjectURL(blob);
+  link.click();
+}
+
+function loadJSON() {
+  const input = document.createElement('input');
+  input.type = 'file'; input.accept = '.json';
+  input.onchange = e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const data = JSON.parse(ev.target.result);
+      document.getElementById('scenarioName').value = data.scenarioName || '';
+      document.getElementById('tableW').value = data.tableW || 6;
+      document.getElementById('tableH').value = data.tableH || 4;
+      pieces = data.pieces || [];
+      resizeTable();
+    };
+    reader.readAsText(file);
+  };
+  input.click();
+}
+
+function clearAll() {
+  if (confirm('Clear all pieces?')) { pieces = []; draw(); }
+}
+
+// Double-click to rename
+document.getElementById('map').addEventListener('dblclick', e => {
+  const rect = canvas.getBoundingClientRect();
+  const mx = (e.clientX - rect.left) / SCALE;
+  const my = (e.clientY - rect.top) / SCALE;
+  const idx = hitTest(mx, my);
+  if (idx >= 0) {
+    const text = prompt('Label:', pieces[idx].label || '');
+    if (text !== null) { pieces[idx].label = text; draw(); }
+  }
+});
+
+// Redraw on name change
+document.getElementById('scenarioName').addEventListener('input', draw);
+
+// Deselect tool with Escape
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    tool = null;
+    document.querySelectorAll('.terrain-btn').forEach(b => b.classList.remove('active'));
+  }
+});
+
+init();
+</script>
+</body>
+</html>

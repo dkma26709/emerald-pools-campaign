@@ -1,0 +1,26 @@
+{
+  "scenarioName": "Portal of Twisted Paths",
+  "tableW": 6,
+  "tableH": 4,
+  "pieces": [
+    { "category": "zone", "typeId": "zone-b", "x": 0, "y": 0, "w": 72, "h": 12, "label": "Tomb Kings (12\")" },
+    { "category": "zone", "typeId": "zone-a", "x": 0, "y": 36, "w": 72, "h": 12, "label": "Lizardmen (12\")" },
+
+    { "category": "terrain", "typeId": "hill", "x": 27, "y": 18, "w": 18, "h": 12, "label": "Central Hill" },
+    { "category": "terrain", "typeId": "portal", "x": 33, "y": 21, "w": 6, "h": 6, "label": "Portal" },
+
+    { "category": "terrain", "typeId": "objective", "x": 3, "y": 3, "w": 6, "h": 6, "label": "Station A" },
+    { "category": "terrain", "typeId": "objective", "x": 63, "y": 3, "w": 6, "h": 6, "label": "Station B" },
+
+    { "category": "terrain", "typeId": "woods", "x": 6, "y": 15, "w": 12, "h": 10, "label": "Forest" },
+    { "category": "terrain", "typeId": "woods", "x": 54, "y": 15, "w": 12, "h": 10, "label": "Forest" },
+    { "category": "terrain", "typeId": "woods", "x": 15, "y": 30, "w": 10, "h": 8, "label": "Forest" },
+    { "category": "terrain", "typeId": "woods", "x": 48, "y": 30, "w": 10, "h": 8, "label": "Forest" },
+
+    { "category": "terrain", "typeId": "hill", "x": 12, "y": 3, "w": 10, "h": 7, "label": "Hill" },
+    { "category": "terrain", "typeId": "hill", "x": 48, "y": 3, "w": 10, "h": 7, "label": "Hill" },
+
+    { "category": "label", "x": 3, "y": 9, "w": 0, "h": 0, "label": "6\" control range" },
+    { "category": "label", "x": 63, "y": 9, "w": 0, "h": 0, "label": "6\" control range" }
+  ]
+}

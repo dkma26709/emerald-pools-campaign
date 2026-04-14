@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Emerald Pools — Campaign</title>
+<link rel="manifest" href="app.webmanifest">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;0,700;1,400&family=IM+Fell+English+SC&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #1a1410;
+    color: #d4c5a9;
+    font-family: 'Crimson Text', Georgia, serif;
+    font-size: 16px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* === NAV === */
+  nav {
+    background: #16120e;
+    border-bottom: 1px solid #3d3225;
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    gap: 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .nav-title {
+    font-family: 'IM Fell English SC', serif;
+    font-size: 18px;
+    color: #c9a96e;
+    padding: 12px 24px 12px 0;
+    border-right: 1px solid #3d3225;
+    margin-right: 8px;
+    white-space: nowrap;
+  }
+  .nav-btn {
+    font-family: 'Crimson Text', serif;
+    font-size: 15px;
+    color: #8b7355;
+    background: none;
+    border: none;
+    padding: 14px 16px;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: color 0.2s, border-color 0.2s;
+  }
+  .nav-btn:hover { color: #d4c5a9; }
+  .nav-btn.active { color: #c9a96e; border-bottom-color: #c9a96e; }
+  .nav-sep { width: 1px; height: 20px; background: #3d3225; margin: 0 4px; }
+
+  /* === LAYOUT === */
+  #app {
+    display: flex;
+    max-width: 1400px;
+    margin: 0 auto;
+    min-height: calc(100vh - 50px);
+  }
+
+  /* Sidebar for sub-navigation */
+  #sidebar {
+    width: 240px;
+    min-width: 240px;
+    background: #1e1914;
+    border-right: 1px solid #2a2318;
+    padding: 20px 0;
+    overflow-y: auto;
+  }
+  .sidebar-header {
+    font-family: 'IM Fell English SC', serif;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #666;
+    padding: 8px 20px 4px;
+  }
+  .sidebar-item {
+    display: block;
+    width: 100%;
+    text-align: left;
+    font-family: 'Crimson Text', serif;
+    font-size: 14px;
+    color: #8b7355;
+    background: none;
+    border: none;
+    padding: 6px 20px;
+    cursor: pointer;
+    transition: color 0.15s, background 0.15s;
+  }
+  .sidebar-item:hover { color: #d4c5a9; background: rgba(139,115,85,0.08); }
+  .sidebar-item.active { color: #c9a96e; background: rgba(139,115,85,0.12); }
+  .sidebar-badge {
+    font-size: 11px;
+    color: #666;
+    margin-left: 6px;
+  }
+
+  /* Main content area */
+  #main {
+    flex: 1;
+    padding: 32px 40px;
+    overflow-y: auto;
+    max-height: calc(100vh - 50px);
+  }
+
+  /* Two-column layout for scenarios */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    align-items: start;
+  }
+  .two-col .col-text { min-width: 0; }
+  .two-col .col-map {
+    position: sticky;
+    top: 0;
+    padding-top: 8px;
+  }
+  .two-col .col-map canvas {
+    width: 100%;
+    height: auto;
+    border: 1px solid #3d3225;
+    border-radius: 4px;
+  }
+
+  @media (max-width: 1000px) {
+    .two-col { grid-template-columns: 1fr; }
+    #sidebar { display: none; }
+  }
+
+  /* === MARKDOWN CONTENT === */
+  .md h1 {
+    font-family: 'IM Fell English SC', serif;
+    font-size: 28px;
+    color: #c9a96e;
+    margin-bottom: 8px;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.4);
+  }
+  .md h2 {
+    font-family: 'IM Fell English SC', serif;
+    font-size: 20px;
+    color: #b89a5a;
+    margin-top: 28px;
+    margin-bottom: 10px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid #3d3225;
+  }
+  .md h3 {
+    font-size: 17px;
+    font-weight: 700;
+    color: #c4b08a;
+    margin-top: 22px;
+    margin-bottom: 6px;
+  }
+  .md h4 {
+    font-size: 15px;
+    font-weight: 600;
+    color: #b8a478;
+    margin-top: 16px;
+    margin-bottom: 4px;
+    font-style: italic;
+  }
+  .md p { margin-bottom: 10px; }
+  .md em { color: #b8a070; }
+  .md strong { color: #d4ba82; font-weight: 700; }
+  .md hr {
+    border: none; height: 1px;
+    background: linear-gradient(90deg, transparent, #5a4a32 30%, #8b7355 50%, #5a4a32 70%, transparent);
+    margin: 24px 0;
+  }
+  .md blockquote {
+    border-left: 3px solid #5a4a32;
+    margin: 16px 0;
+    padding: 10px 16px;
+    background: rgba(0,0,0,0.15);
+    border-radius: 0 4px 4px 0;
+    font-style: italic;
+    color: #b8a478;
+  }
+  .md ul, .md ol { margin: 6px 0 10px 20px; }
+  .md li { margin-bottom: 3px; }
+  .md code {
+    font-family: Consolas, monospace;
+    font-size: 13px;
+    background: rgba(0,0,0,0.2);
+    padding: 1px 4px;
+    border-radius: 2px;
+    color: #b8a478;
+  }
+  .md table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0;
+    font-size: 14px;
+  }
+  .md thead { background: rgba(139,115,85,0.15); }
+  .md th {
+    font-family: 'IM Fell English SC', serif;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #b89a5a;
+    text-align: left;
+    padding: 6px 8px;
+    border-bottom: 2px solid #3d3225;
+  }
+  .md td {
+    padding: 5px 8px;
+    border-bottom: 1px solid #2a2318;
+    vertical-align: top;
+  }
+  .md tr:hover td { background: rgba(139,115,85,0.06); }
+
+  /* Track progress indicators */
+  .md td.status-earned {
+    color: #6ab04c;
+    font-weight: 700;
+    text-shadow: 0 0 6px rgba(106,176,76,0.3);
+  }
+  .md tr.row-earned td {
+    background: rgba(106,176,76,0.08);
+    border-left: 2px solid #6ab04c;
+  }
+  .md tr.row-next td {
+    background: rgba(201,169,110,0.1);
+    border-left: 2px solid #c9a96e;
+  }
+  .md td.status-next {
+    color: #c9a96e;
+    font-weight: 700;
+  }
+
+  /* Stat block tables */
+  .md table.stat-block th { text-align: center; padding: 5px 3px; }
+  .md table.stat-block td { text-align: center; padding: 3px; font-size: 13px; }
+  .md table.stat-block td:first-child { text-align: left; font-weight: 600; color: #c4b08a; }
+
+  /* Landing page */
+  .landing { text-align: center; padding-top: 80px; }
+  .landing h1 { font-size: 36px; margin-bottom: 12px; }
+  .landing p { font-size: 18px; color: #8b7355; max-width: 500px; margin: 0 auto 24px; }
+  .landing-cards {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 40px;
+  }
+  .landing-card {
+    background: #231e15;
+    border: 1px solid #3d3225;
+    border-radius: 6px;
+    padding: 20px 24px;
+    width: 200px;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+  .landing-card:hover { border-color: #8b7355; }
+  .landing-card h3 {
+    font-family: 'IM Fell English SC', serif;
+    font-size: 16px;
+    color: #c9a96e;
+    margin-bottom: 6px;
+  }
+  .landing-card p { font-size: 13px; color: #8b7355; margin: 0; text-align: left; }
+
+  /* Print */
+  @media print {
+    body { background: white; color: #1a1410; }
+    nav, #sidebar { display: none; }
+    #main { max-height: none; padding: 20px; }
+    .md h1 { color: #2a1a0a; text-shadow: none; }
+    .md h2 { color: #3a2a1a; border-color: #ccc; }
+    .md strong { color: #1a1410; }
+    .md em { color: #4a3a2a; }
+    .md thead { background: #f0e8d8; }
+    .md th { color: #3a2a1a; border-color: #aaa; }
+    .md td { border-color: #ddd; }
+    .two-col { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-title">The Emerald Pools</div>
+  <button class="nav-btn active" data-section="home" onclick="showSection('home')">Campaign</button>
+  <div class="nav-sep"></div>
+  <button class="nav-btn" data-section="scenarios" onclick="showSection('scenarios')">Scenarios</button>
+  <div class="nav-sep"></div>
+  <button class="nav-btn" data-section="factions" onclick="showSection('factions')">Factions</button>
+</nav>
+
+<div id="app">
+  <div id="sidebar"></div>
+  <div id="main">
+    <div class="landing" id="landing">
+      <h1 style="font-family:'IM Fell English SC',serif; color:#c9a96e;">The Emerald Pools</h1>
+      <p>Four armies search for the Emerald Pools — an ancient Lizardmen site of immense power, lost to the jungle for millennia.</p>
+      <div class="landing-cards" id="landingCards"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+let manifest = null;
+let currentSection = 'home';
+
+// === MARKDOWN PARSER (reused from viewer) ===
+function parseMd(md) {
+  let html = '';
+  const lines = md.split('\n');
+  let inTable = false, tableRows = [], inList = false, listType = 'ul', inBq = false, bqLines = [];
+
+  function flushTable() {
+    if (!tableRows.length) return '';
+    const isStat = tableRows[0].some(c => /^\s*(M|WS|BS|S|T|W|I|A|Ld|Points|Profile)\s*$/i.test(c));
+    let h = `<table${isStat?' class="stat-block"':''}><thead><tr>`;
+    tableRows[0].forEach(c => h += `<th>${inline(c.trim())}</th>`);
+    h += '</tr></thead><tbody>';
+    for (let i = 1; i < tableRows.length; i++) {
+      if (tableRows[i].every(c => /^[\s\-:]+$/.test(c))) continue;
+      h += '<tr>'; tableRows[i].forEach(c => h += `<td>${inline(c.trim())}</td>`); h += '</tr>';
+    }
+    h += '</tbody></table>'; tableRows = []; return h;
+  }
+  function flushList() { if (!inList) return ''; inList = false; return `</${listType}>`; }
+  function flushBq() { if (!inBq) return ''; inBq = false; let r = `<blockquote>${parseMd(bqLines.join('\n'))}</blockquote>`; bqLines = []; return r; }
+  function inline(t) {
+    t = t.replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>');
+    t = t.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    t = t.replace(/\*(.+?)\*/g, '<em>$1</em>');
+    t = t.replace(/`(.+?)`/g, '<code>$1</code>');
+    t = t.replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2">$1</a>');
+    return t;
+  }
+
+  for (const line of lines) {
+    const tr = line.trim();
+    if (tr.startsWith('> ')) { if (!inBq) { html += flushTable()+flushList(); inBq = true; bqLines = []; } bqLines.push(tr.slice(2)); continue; }
+    else if (inBq && tr === '') { bqLines.push(''); continue; }
+    else if (inBq) html += flushBq();
+    if (tr.startsWith('|') && tr.endsWith('|')) { if (!inTable) { html += flushList(); inTable = true; tableRows = []; } tableRows.push(tr.split('|').slice(1,-1)); continue; }
+    else if (inTable) { html += flushTable(); inTable = false; }
+    if (/^#{1,4}\s/.test(tr)) {
+      html += flushList();
+      const lvl = tr.match(/^#+/)[0].length;
+      html += `<h${lvl}>${inline(tr.replace(/^#+\s/,''))}</h${lvl}>`;
+      continue;
+    }
+    if (/^-{3,}$|^\*{3,}$/.test(tr)) { html += flushList()+'<hr>'; continue; }
+    if (/^[-*]\s/.test(tr)) { if (!inList) { inList = true; listType = 'ul'; html += '<ul>'; } html += `<li>${inline(tr.slice(2))}</li>`; continue; }
+    if (/^\d+\.\s/.test(tr)) { if (!inList) { inList = true; listType = 'ol'; html += '<ol>'; } html += `<li>${inline(tr.replace(/^\d+\.\s/,''))}</li>`; continue; }
+    if (inList && tr !== '') html += flushList();
+    if (tr === '') { if (inList) html += flushList(); continue; }
+    html += `<p>${inline(tr)}</p>`;
+  }
+  return html + flushTable() + flushList() + flushBq();
+}
+
+// === MAP RENDERER (reused from viewer) ===
+const TERRAIN = [
+  { id:'woods', label:'Woods', color:'#2d6a2d', shape:'ellipse' },
+  { id:'hill', label:'Hill', color:'#8B7355', shape:'ellipse' },
+  { id:'building', label:'Building', color:'#777', shape:'rect' },
+  { id:'ruins', label:'Ruins', color:'#665', shape:'rect' },
+  { id:'river', label:'River', color:'#2255aa', shape:'rect' },
+  { id:'marsh', label:'Marsh', color:'#3a6b5a', shape:'ellipse' },
+  { id:'road', label:'Road', color:'#8a7a5a', shape:'rect' },
+  { id:'objective', label:'Objective', color:'#e94560', shape:'circle' },
+  { id:'portal', label:'Portal', color:'#9944cc', shape:'circle' },
+  { id:'wall', label:'Wall', color:'#999', shape:'rect' },
+  { id:'pyre', label:'Pyre', color:'#cc6600', shape:'circle' },
+];
+const ZONES = [
+  { id:'zone-a', color:'rgba(40,80,200,0.2)', border:'#2850c8' },
+  { id:'zone-b', color:'rgba(200,40,40,0.2)', border:'#c82828' },
+  { id:'zone-neutral', color:'rgba(200,200,40,0.15)', border:'#c8c828' },
+];
+
+function renderMapCanvas(canvas, data) {
+  const S = 9;
+  const wI = (data.tableW||6)*12, hI = (data.tableH||4)*12;
+  canvas.width = wI*S; canvas.height = hI*S;
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = '#2a2a3a'; ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.strokeStyle='#333'; ctx.lineWidth=0.5;
+  for (let x=0;x<=wI;x+=6){ctx.beginPath();ctx.moveTo(x*S,0);ctx.lineTo(x*S,canvas.height);ctx.stroke();}
+  for (let y=0;y<=hI;y+=6){ctx.beginPath();ctx.moveTo(0,y*S);ctx.lineTo(canvas.width,y*S);ctx.stroke();}
+  ctx.strokeStyle='#444'; ctx.lineWidth=1;
+  for (let x=0;x<=wI;x+=12){ctx.beginPath();ctx.moveTo(x*S,0);ctx.lineTo(x*S,canvas.height);ctx.stroke();}
+  for (let y=0;y<=hI;y+=12){ctx.beginPath();ctx.moveTo(0,y*S);ctx.lineTo(canvas.width,y*S);ctx.stroke();}
+  ctx.fillStyle='#555';ctx.font='8px sans-serif';
+  for(let f=0;f<=wI/12;f++)ctx.fillText(f+"'",f*12*S+2,9);
+  for(let f=0;f<=hI/12;f++)ctx.fillText(f+"'",2,f*12*S+9);
+
+  const pieces = data.pieces||[];
+  pieces.filter(p=>p.category==='zone').forEach(p=>drawPiece(ctx,p,S));
+  pieces.filter(p=>p.category==='terrain').forEach(p=>drawPiece(ctx,p,S));
+  pieces.filter(p=>p.category==='label').forEach(p=>drawPiece(ctx,p,S));
+}
+
+function drawPiece(ctx,p,S) {
+  const px=p.x*S,py=p.y*S,pw=p.w*S,ph=p.h*S;
+  if (p.category==='zone') {
+    const z=ZONES.find(z=>z.id===p.typeId); if(!z)return;
+    ctx.fillStyle=z.color; ctx.fillRect(px,py,pw,ph);
+    ctx.strokeStyle=z.border;ctx.lineWidth=1.5;ctx.setLineDash([4,3]);ctx.strokeRect(px,py,pw,ph);ctx.setLineDash([]);
+    if(p.label){ctx.fillStyle=z.border;ctx.font='bold 9px sans-serif';ctx.fillText(p.label,px+3,py+11);}
+    return;
+  }
+  if (p.category==='label') {
+    ctx.fillStyle='#ccc';ctx.font='9px sans-serif';
+    const words=(p.label||'').split(' '); let line='',ly=py+9;
+    words.forEach(w=>{const t=line+w+' ';if(ctx.measureText(t).width>180&&line){ctx.fillText(line.trim(),px,ly);line=w+' ';ly+=11;}else line=t;});
+    if(line)ctx.fillText(line.trim(),px,ly);
+    return;
+  }
+  const t=TERRAIN.find(t=>t.id===p.typeId);if(!t)return;
+  ctx.fillStyle=t.color;ctx.strokeStyle='#000';ctx.lineWidth=1;
+  if(t.shape==='ellipse'){ctx.beginPath();ctx.ellipse(px+pw/2,py+ph/2,pw/2,ph/2,0,0,Math.PI*2);ctx.fill();ctx.stroke();}
+  else if(t.shape==='circle'){const r=Math.min(pw,ph)/2;ctx.beginPath();ctx.arc(px+pw/2,py+ph/2,r,0,Math.PI*2);ctx.fill();ctx.stroke();}
+  else{ctx.fillRect(px,py,pw,ph);ctx.strokeRect(px,py,pw,ph);}
+  const label=p.label||t.label;ctx.fillStyle='#fff';ctx.font='8px sans-serif';
+  const tw=ctx.measureText(label).width;
+  ctx.fillText(label,px+pw/2-tw/2,py+ph/2+3);
+}
+
+// === APP LOGIC ===
+async function init() {
+  try {
+    const res = await fetch('manifest.json');
+    manifest = await res.json();
+    showSection('home');
+  } catch(e) {
+    document.getElementById('main').innerHTML = '<div class="md" style="padding:40px"><h2>Local Mode</h2><p>Could not load manifest. If running from file://, use the standalone <a href="scenario-viewer.html">Scenario Viewer</a> instead, or serve with a local web server.</p></div>';
+  }
+}
+
+function buildLanding() {
+  const cards = document.getElementById('landingCards');
+  cards.innerHTML = '';
+
+  const scenarioCard = document.createElement('div');
+  scenarioCard.className = 'landing-card';
+  scenarioCard.onclick = () => showSection('scenarios');
+  scenarioCard.innerHTML = `<h3>Scenarios</h3><p>${manifest.scenarios.length} planned</p>`;
+  cards.appendChild(scenarioCard);
+
+  manifest.factions.forEach(f => {
+    const card = document.createElement('div');
+    card.className = 'landing-card';
+    card.onclick = () => { showSection('factions'); if (f.tabs && f.tabs.length) loadFactionTab(f.id, f.tabs[0].id); };
+    card.innerHTML = `<h3>${f.name.split('—')[0].trim()}</h3><p>${f.player}</p>`;
+    cards.appendChild(card);
+  });
+}
+
+function showSection(section) {
+  currentSection = section;
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.toggle('active', b.dataset.section === section));
+
+  const sidebar = document.getElementById('sidebar');
+  const main = document.getElementById('main');
+
+  if (section === 'home') {
+    sidebar.innerHTML = '';
+    main.innerHTML = '';
+    const landing = document.createElement('div');
+    landing.className = 'landing';
+    landing.innerHTML = `<h1 style="font-family:'IM Fell English SC',serif;color:#c9a96e;">The Emerald Pools</h1><p>Four armies search for the Emerald Pools — an ancient Lizardmen site of immense power, lost to the jungle for millennia.</p><div class="landing-cards" id="landingCards"></div>`;
+    main.appendChild(landing);
+    buildLanding();
+
+    // Also load Campaign Reference below the landing cards
+    if (manifest.campaign && manifest.campaign.reference) {
+      fetch(manifest.campaign.reference).then(r => r.text()).then(md => {
+        const ref = document.createElement('div');
+        ref.className = 'md';
+        ref.style.marginTop = '40px';
+        ref.innerHTML = parseMd(md);
+        main.appendChild(ref);
+      }).catch(() => {});
+    }
+    return;
+  }
+
+  if (section === 'scenarios') {
+    sidebar.innerHTML = '';
+    const completed = manifest.scenarios.filter(s => s.status === 'completed');
+    const planned = manifest.scenarios.filter(s => s.status === 'planned');
+
+    function addHeader(text) {
+      const h = document.createElement('div');
+      h.className = 'sidebar-header';
+      h.textContent = text;
+      sidebar.appendChild(h);
+    }
+
+    if (planned.length) {
+      addHeader('Upcoming');
+      planned.forEach(s => {
+        const btn = document.createElement('button');
+        btn.className = 'sidebar-item';
+        btn.dataset.id = s.id;
+        btn.innerHTML = `${s.name}${s.points ? ` <span class="sidebar-badge">${s.points}pts</span>` : ''}`;
+        btn.onclick = () => loadScenario(s.id);
+        sidebar.appendChild(btn);
+      });
+    }
+
+    if (completed.length) {
+      addHeader('Completed');
+      completed.forEach(s => {
+        const btn = document.createElement('button');
+        btn.className = 'sidebar-item';
+        btn.dataset.id = s.id;
+        btn.innerHTML = `${s.name} <span class="sidebar-badge">${s.result || ''}</span>`;
+        btn.onclick = () => loadScenario(s.id);
+        sidebar.appendChild(btn);
+      });
+    }
+
+    const first = planned[0] || completed[0];
+    if (first) loadScenario(first.id);
+    return;
+  }
+
+  if (section === 'factions') {
+    sidebar.innerHTML = '';
+    manifest.factions.forEach(f => {
+      const header = document.createElement('div');
+      header.className = 'sidebar-header';
+      header.textContent = f.name.split('—')[0].trim();
+      sidebar.appendChild(header);
+
+      (f.tabs || []).forEach(tab => {
+        const btn = document.createElement('button');
+        btn.className = 'sidebar-item';
+        btn.dataset.id = f.id + '/' + tab.id;
+        btn.textContent = tab.label;
+        btn.onclick = () => loadFactionTab(f.id, tab.id);
+        sidebar.appendChild(btn);
+      });
+    });
+    // Load first faction's first tab
+    const first = manifest.factions[0];
+    if (first && first.tabs && first.tabs.length) loadFactionTab(first.id, first.tabs[0].id);
+    return;
+  }
+}
+
+async function loadScenario(id) {
+  const s = manifest.scenarios.find(s => s.id === id);
+  if (!s) return;
+
+  document.querySelectorAll('#sidebar .sidebar-item').forEach(b => b.classList.toggle('active', b.dataset.id === id));
+  const main = document.getElementById('main');
+  main.innerHTML = '<p style="color:#666">Loading...</p>';
+
+  try {
+    const [mdRes, mapRes] = await Promise.all([
+      fetch(s.md).then(r => r.text()),
+      s.map ? fetch(s.map).then(r => r.json()).catch(() => null) : null
+    ]);
+
+    if (mapRes) {
+      main.innerHTML = `<div class="two-col"><div class="col-text md">${parseMd(mdRes)}</div><div class="col-map"><canvas id="scenarioMap"></canvas></div></div>`;
+      renderMapCanvas(document.getElementById('scenarioMap'), mapRes);
+    } else {
+      main.innerHTML = `<div class="md">${parseMd(mdRes)}</div>`;
+    }
+  } catch(e) {
+    main.innerHTML = `<div class="md"><h2>Error</h2><p>Could not load scenario: ${e.message}</p></div>`;
+  }
+}
+
+async function loadFactionTab(factionId, tabId) {
+  const f = manifest.factions.find(f => f.id === factionId);
+  if (!f) return;
+  const tab = (f.tabs || []).find(t => t.id === tabId);
+  if (!tab) return;
+
+  const key = factionId + '/' + tabId;
+  document.querySelectorAll('#sidebar .sidebar-item').forEach(b => b.classList.toggle('active', b.dataset.id === key));
+  const main = document.getElementById('main');
+  main.innerHTML = '<p style="color:#666">Loading...</p>';
+
+  try {
+    const md = await fetch(tab.md).then(r => r.text());
+    main.innerHTML = `<div class="md">${parseMd(md)}</div>`;
+    highlightTrackProgress(main);
+  } catch(e) {
+    main.innerHTML = `<div class="md"><h2>Error</h2><p>Could not load: ${e.message}</p></div>`;
+  }
+}
+
+function highlightTrackProgress(container) {
+  // Find tables with a "Status" column and highlight rows
+  container.querySelectorAll('table').forEach(table => {
+    const headers = Array.from(table.querySelectorAll('th')).map(th => th.textContent.trim());
+    const statusIdx = headers.indexOf('Status');
+    if (statusIdx === -1) return;
+
+    const rows = table.querySelectorAll('tbody tr');
+    let lastEarned = -1;
+
+    rows.forEach((row, i) => {
+      const cells = row.querySelectorAll('td');
+      if (!cells[statusIdx]) return;
+      const status = cells[statusIdx].textContent.trim();
+
+      if (status && status !== '') {
+        // This tier is earned
+        row.classList.add('row-earned');
+        cells[statusIdx].classList.add('status-earned');
+        lastEarned = i;
+      }
+    });
+
+    // Mark the next available tier — only if at least one tier is earned
+    if (lastEarned >= 0) {
+      const nextIdx = lastEarned + 1;
+      if (nextIdx < rows.length) {
+        const nextRow = rows[nextIdx];
+        nextRow.classList.add('row-next');
+        const cells = nextRow.querySelectorAll('td');
+        if (cells[statusIdx]) {
+          cells[statusIdx].textContent = '\u25CB'; // ○ empty circle = next available
+          cells[statusIdx].classList.add('status-next');
+        }
+      }
+    }
+  });
+}
+
+init();
+</script>
+</body>
+</html>

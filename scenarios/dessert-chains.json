@@ -1,0 +1,21 @@
+{
+  "scenarioName": "Dessert Chains",
+  "tableW": 6,
+  "tableH": 4,
+  "pieces": [
+    { "category": "zone", "typeId": "zone-a", "x": 0, "y": 36, "w": 72, "h": 12, "label": "Bretonnia (12\")" },
+    { "category": "zone", "typeId": "zone-b", "x": 0, "y": 0, "w": 72, "h": 12, "label": "Dogs of War (12\")" },
+
+    { "category": "terrain", "typeId": "river", "x": 0, "y": 0, "w": 72, "h": 6, "label": "River" },
+    { "category": "terrain", "typeId": "building", "x": 30, "y": 3, "w": 10, "h": 5, "label": "Ship" },
+
+    { "category": "terrain", "typeId": "objective", "x": 15, "y": 6, "w": 4, "h": 4, "label": "Prisoners A" },
+    { "category": "terrain", "typeId": "objective", "x": 33, "y": 6, "w": 4, "h": 4, "label": "Prisoners B" },
+    { "category": "terrain", "typeId": "objective", "x": 51, "y": 6, "w": 4, "h": 4, "label": "Prisoners C" },
+
+    { "category": "terrain", "typeId": "hill", "x": 6, "y": 18, "w": 10, "h": 8, "label": "Dune" },
+    { "category": "terrain", "typeId": "hill", "x": 48, "y": 24, "w": 12, "h": 8, "label": "Dune" },
+    { "category": "terrain", "typeId": "ruins", "x": 24, "y": 18, "w": 8, "h": 6, "label": "Desert Ruins" },
+    { "category": "terrain", "typeId": "ruins", "x": 54, "y": 12, "w": 6, "h": 5, "label": "Ruins" }
+  ]
+}
