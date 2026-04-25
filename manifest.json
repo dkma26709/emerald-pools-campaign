@@ -32,6 +32,17 @@
         { "id": "brogg", "label": "Brogg", "md": "factions/nobleguts/brogg.md" },
         { "id": "rules", "label": "Full Rules", "md": "Nobleguts.md" }
       ]
+    },
+    {
+      "id": "empire",
+      "name": "Empire — The Rosbach Expedition",
+      "player": "Anders",
+      "tabs": [
+        { "id": "army", "label": "Army", "md": "factions/empire/army.md" },
+        { "id": "rostbach", "label": "Rostbach", "md": "factions/empire/rostbach.md" },
+        { "id": "stahlberg", "label": "Stahlberg", "md": "factions/empire/stahlberg.md" },
+        { "id": "giest", "label": "Giest", "md": "factions/empire/giest.md" }
+      ]
     }
   ],
   "scenarios": [
