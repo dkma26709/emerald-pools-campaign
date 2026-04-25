@@ -33,7 +33,7 @@ The full original rules are documented in "Springs of Eternal Life.rtf" on the D
 | Lizardmen | 0 | |
 | Tomb Kings | 0 | |
 | Ogre Kingdoms | 0 | Player previously ran Orcs & Goblins — transitioning |
-| Empire | — | Player currently running Bretonnia — transitioning |
+| Empire | 0 | The Rosbach Expedition — newly arrived |
 
 ### Army Transitions
 
@@ -418,19 +418,39 @@ Hercule is not sure whether the Emerald Pools *are* the Grail, but they sound cl
 
 ---
 
-## Army: Empire (replacing Bretonnia)
+## Army: Empire — The Rosbach Expedition
+
+*Full faction documentation lives in `factions/empire/` — army composition, character sheets, and (eventually) progression tracks. Summary below.*
 
 ### Motivation
 
-*TBD — not yet joined the campaign.*
+The expedition hails from **Ofenstadt**, an iron-mining city built into the scarred slopes of Kessler's Ridge — south of the Empire proper, hard against the Tilean border. Furnaces burn day and night, soot blackens the rooftops, the people are hard, blunt, and practical. Ofenstadt iron is not fine but it is cheap, plentiful, and reliable.
+
+The Counsel of Ofenstadt has charged **Friedrich Rostbach** with leading an expeditionary force south into the Land of the Dead to find **Aldric Brunnholt**, a prominent member of the city's merchant guild who vanished along with his caravan beyond the borders of civilised lands.
 
 ### Heroes
 
-*TBD*
+**Friedrich Rostbach** — Warrior Priest of Sigmar (expedition leader)
+- Hand weapon, Heavy Armour, Shield. Battle Prayers of Sigmar; Righteous Fury.
+- Son of a smith, grandson of a miner — soot in his blood, iron in his faith. Ofenstadt through and through.
+- Current rewards:
+- Current injuries:
+
+**Werner Stahlberg** — Captain of the Empire (Battle Standard Bearer)
+- Hand weapon, Heavy Armour, Shield, Repeater handgun. Hold the Line; Battle Standard Bearer.
+- Career soldier, old and grey and hard as Ofenstadt iron. Speaks little, wastes nothing.
+- Current rewards:
+- Current injuries:
+
+**Theodor Giest** — Battle Wizard (Wizard Level 2, Lore of Metal)
+- Hand weapon. Spells: *Glittering Robe* (signature), *Plague of Rust* (Lv 1), *Enchanted Blades of Aiban* (Lv 2).
+- Apprentice of the College of Steel, the youngest of the expedition's leaders. Clever, eager, and not yet wise enough to know the true dangers of his craft.
+- Current rewards:
+- Current injuries:
 
 ### Sub-Objectives
 
-*To be developed when the Empire enters the campaign.*
+*To be developed. The missing merchant Aldric Brunnholt is the obvious through-line — scenarios that intersect his caravan's fate, slaver routes through the Land of the Dead, or the dark energy threads from Scenarios 7 / 9 are all candidates. The Witch Hunter outcome from "Priest in Pieces" sets the tone of the Empire's arrival (see Witch Hunter Outcomes table above).*
 
 ---
 
